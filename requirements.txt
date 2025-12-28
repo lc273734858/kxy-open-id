@@ -1,0 +1,22 @@
+# Core dependencies (required)
+fastapi==0.115.8
+uvicorn==0.34.0
+redis==5.2.1
+pydantic==2.10.6
+python-jose[cryptography]==3.4.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.20
+pyDes==2.0.1
+
+# Database drivers (optional - install only what you need)
+# For MySQL support:
+aiomysql==0.2.0
+
+# For PostgreSQL support:
+asyncpg==0.30.0
+
+# For SQL Server support (requires ODBC Driver 17):
+pyodbc==5.2.0
+
+# For Oracle support (requires Oracle Instant Client):
+cx-Oracle==8.3.0

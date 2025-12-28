@@ -1,0 +1,8 @@
+log/
+**/*.pyc
+*.pyc
+*.log.*
+*.log
+export_excels/*
+testImage/*
+.venv

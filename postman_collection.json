@@ -1,0 +1,384 @@
+{
+	"info": {
+		"_postman_id": "kxy-open-id-collection",
+		"name": "KXY ID Generator Service",
+		"description": "Distributed ID segment allocation service with multi-database support",
+		"version": "1.0.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Health check endpoint to verify service is running"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Check System Initialization",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/check-init",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "check-init"]
+						},
+						"description": "Check if the system has been initialized with admin user"
+					},
+					"response": []
+				},
+				{
+					"name": "Initialize System",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/init-user",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "init-user"]
+						},
+						"description": "Initialize the system with admin user credentials (first-time setup only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.code === 0 && jsonData.data && jsonData.data.token) {",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Login with username and password, returns JWT token that will be automatically saved to collection variable"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Database Configuration",
+			"item": [
+				{
+					"name": "Get Database List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/database/list",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", "list"]
+						},
+						"description": "Get all database configurations (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Database Configuration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"system_code\": \"my_system\",\n  \"db_type\": \"mysql\",\n  \"db_address\": \"localhost:3306\",\n  \"db_user\": \"root\",\n  \"db_password\": \"password\",\n  \"db_name\": \"mydb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/database/add",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", "add"]
+						},
+						"description": "Add a new database configuration. Supported db_type: mysql, postgresql, sqlserver, oracle"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Database by GUID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/database/:guid",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", ":guid"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Get a single database configuration by GUID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Database Configuration",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"system_code\": \"my_system\",\n  \"db_type\": \"mysql\",\n  \"db_address\": \"localhost:3306\",\n  \"db_user\": \"root\",\n  \"db_password\": \"new_password\",\n  \"db_name\": \"mydb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/database/:guid",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", ":guid"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Update an existing database configuration"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Database Configuration",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/database/:guid",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", ":guid"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Delete a database configuration and all related segments"
+					},
+					"response": []
+				},
+				{
+					"name": "Initialize Database",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/database/initialize/:guid",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", "initialize", ":guid"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Initialize database by scanning all tables and storing max IDs"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Custom Segment Configuration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"table_name\": \"users\",\n  \"field_name\": \"id\",\n  \"initial_value\": 1000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/database/:guid/add-config",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", ":guid", "add-config"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Add a custom segment configuration for a specific table and field"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Discovered Tables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/database/:guid/discovered-tables",
+							"host": ["{{base_url}}"],
+							"path": ["api", "database", ":guid", "discovered-tables"],
+							"variable": [
+								{
+									"key": "guid",
+									"value": "your-database-guid-here"
+								}
+							]
+						},
+						"description": "Get list of discovered new tables for a database configuration"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ID Segment Allocation",
+			"item": [
+				{
+					"name": "Allocate ID Segment",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"system_code\": \"my_system\",\n  \"db_name\": \"mydb\",\n  \"table_name\": \"users\",\n  \"field_name\": \"id\",\n  \"segment_count\": 10000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/segment/allocate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "segment", "allocate"]
+						},
+						"description": "Allocate an ID segment (NO authentication required). Returns start and end IDs for the allocated segment. segment_count range: 1-1000000, default: 10000"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5801",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
